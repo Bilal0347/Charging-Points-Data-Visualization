@@ -187,7 +187,16 @@ body {
   
   /* End Main  */
   
-  
+  .timeSelectionMainDiv{
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+.inputTimeSelection{
+  margin-top: 5px;
+  width: 250px;
+}
+
   /* Medium <= 992px */
     
   @media screen and (max-width: 992px) {
