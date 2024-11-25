@@ -126,7 +126,7 @@ body {
   /* Main  */  
   .main-container {
     grid-area: main;
-    overflow-y: auto;
+    overflow-y: none;
     padding: 20px 20px;
     color: rgba(255, 255, 255, 0.95);
   }
@@ -188,13 +188,17 @@ body {
   /* End Main  */
   
   .timeSelectionMainDiv{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     margin-top: 20px;
     margin-bottom: 20px;
   }
 
 .inputTimeSelection{
   margin-top: 5px;
-  width: 250px;
+  width: 278px;
 }
 
   /* Medium <= 992px */
@@ -242,6 +246,45 @@ body {
       display: none;
     }
   }
-  
+.heatmapMain{
+  max-width: 800px;
+  max-height: 800px;
+}
+
+.heatmapTitle{
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 668px) {
+  .chart-container {
+    padding: 0.5rem;
+    max-width: 800px !important;
+    overflow-x: auto; /* Reduce padding on mobile */
+  }
+
 
   
+  .recharts-surface{
+    width: 150% !important;
+  }
+  .heatMapGrid{
+    margin-left: 100px;
+    max-width: 400px;
+    overflow-x: auto;
+  }
+ 
+
+}
+
+.valueLable{
+  margin-right: 20px;
+}

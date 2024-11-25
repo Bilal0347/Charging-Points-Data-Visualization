@@ -6,9 +6,44 @@ import {
   BsLightningFill,
   BsCalendarFill,
 } from "react-icons/bs";
+import BarChartComponent from "./bar-chart";
+import HeatmapCalender from "./heat-map-calender";
+
 import "./style.css";
 
 function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
+  const chartData = React.useMemo(() => {
+    switch (timeScale) {
+      case "day":
+        // Hourly data when timeScale is "day"
+        return data.hourlyData.map((hour: any) => ({
+          name: `Hour ${hour.hour}`,
+          Events: hour.events,
+          "Energy (kWh)": hour.totalPower,
+        }));
+
+      case "month":
+        // Daily data when timeScale is "month"
+        return data.dailyData.map((day: any) => ({
+          name: `Day ${day.day}`,
+          Events: day.events,
+          "Energy (kWh)": day.totalPower,
+        }));
+
+      case "year":
+        // Monthly data when timeScale is "year"
+        return data.monthlyData.map((month: any) => ({
+          name: `Month ${month.month}`,
+          Events: month.events,
+          "Energy (kWh)": month.totalPower,
+        }));
+
+      default:
+        return [];
+    }
+  }, [timeScale, data]);
+
+  // This function transforms the data to fit the heatmap's expected structure
   return (
     <main className="main-container flex flex-col items-center justify-center">
       {/* Title */}
@@ -16,12 +51,12 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
         <h3>DASHBOARD</h3>
       </div>
       {/* Time Scale Selection */}
-      <div className="mb-4 flex flex-col self-start timeSelectionMainDiv ">
-        <label className="text-gray-300 text-1xl top-10 flex flex-row self-start customLabelClass w-full">
+      <div className="mb-4  timeSelectionMainDiv ">
+        <label className="text-gray-300 text-1xl top-10  customLabelClass w-full">
           Current Time Scale:
         </label>
         <select
-          className="h-10 w-full  px-6 text-1xl text-white bg-black border-white border-2 rounded-lg border-opacity-50 outline-none focus:border-blue-500 placeholder-gray-300  transition duration-200 inputTimeSelection"
+          className="h-10   px-6 text-1xl text-white bg-black border-white border-2 rounded-lg border-opacity-50 outline-none focus:border-blue-500 placeholder-gray-300  transition duration-200 inputTimeSelection"
           value={timeScale}
           onChange={(e) =>
             onTimeScaleChange(e.target.value as "day" | "month" | "year")
@@ -88,15 +123,14 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
         </div>
       </div>
       {/* Charts Section */}
-      <div className="charts-section mt-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-700">
-          Visualizations
-        </h3>
-
-        {/* Placeholder for future charts */}
-        <div className="chart-placeholder bg-gray-100 h-64 rounded-lg flex items-center justify-center">
-          <p className="text-gray-600">Charts will appear here.</p>
-        </div>
+      <div>
+        {/* Bar Chart Component */}
+        <BarChartComponent data={chartData} />
+        <HeatmapCalender
+          startDate={"2024-01-01"}
+          endDate={"2024-12-30"}
+          dataValues={data.heatmapData}
+        />
       </div>
     </main>
   );

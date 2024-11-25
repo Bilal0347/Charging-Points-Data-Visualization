@@ -19,7 +19,7 @@ const App = () => {
   });
 
   const [simulationData, setSimulationData] = useState<any>(null); // Store the generated data
-  const [timeScale, setTimeScale] = useState<"day" | "month" | "year">("month");
+  const [timeScale, setTimeScale] = useState<"day" | "month" | "year">("year");
 
   // Map time scale to simulation days
   const timeScaleToDays = {
