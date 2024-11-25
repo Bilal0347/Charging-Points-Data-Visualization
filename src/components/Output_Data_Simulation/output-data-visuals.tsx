@@ -13,29 +13,53 @@ import "./style.css";
 
 function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
   const chartData = React.useMemo(() => {
+    const formatHour = (hour: number) =>
+      new Intl.DateTimeFormat("en-US", {
+        hour: "2-digit",
+        hour12: false,
+      }).format(new Date(0, 0, 0, hour));
+    const formatMonth = (month: number) =>
+      new Intl.DateTimeFormat("en-US", { month: "short" }).format(
+        new Date(0, month - 1)
+      );
+    const formatDay = (day: number) =>
+      new Intl.DateTimeFormat("en-US", { day: "2-digit" }).format(
+        new Date(2024, 0, day)
+      ); // Adjust year and month as needed
+
+    let lastLabel: string | null = null;
+
+    const getUniqueLabel = (label: string) => {
+      if (label !== lastLabel) {
+        lastLabel = label;
+        return label;
+      }
+      return "";
+    };
+
     switch (timeScale) {
       case "day":
         // Hourly data when timeScale is "day"
         return data.hourlyData.map((hour: any) => ({
-          name: `Hour ${hour.hour}`,
+          name: getUniqueLabel(formatHour(hour.hour)),
           Events: hour.events,
-          "Energy (kWh)": hour.totalPower,
+          Energy: hour.totalPower,
         }));
 
       case "month":
         // Daily data when timeScale is "month"
         return data.dailyData.map((day: any) => ({
-          name: `Day ${day.day}`,
+          name: getUniqueLabel(formatDay(day.day)),
           Events: day.events,
-          "Energy (kWh)": day.totalPower,
+          Energy: day.totalPower,
         }));
 
       case "year":
         // Monthly data when timeScale is "year"
         return data.monthlyData.map((month: any) => ({
-          name: `Month ${month.month}`,
+          name: getUniqueLabel(formatMonth(month.month)),
           Events: month.events,
-          "Energy (kWh)": month.totalPower,
+          Energy: month.totalPower,
         }));
 
       default:
@@ -69,7 +93,7 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
       </div>
       {/* Summary Cards */}
       <div className="main-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Days Charged */}
+        {/* Total Days Charged
         <div className="card bg-blue-100 p-4 rounded-lg shadow-md">
           <div className="card-inner flex justify-between items-center">
             <h3 className=" text-lg font-semibold">TOTAL DAYS</h3>
@@ -78,8 +102,7 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
           <h1 className="text-2xl font-bold  mt-2">
             {data.daysToSimulate || 0}
           </h1>
-        </div>
-
+        </div> */}
         {/* Total Energy Charged */}
         <div className="card bg-blue-100 p-4 rounded-lg shadow-md">
           <div className="card-inner flex justify-between items-center">
@@ -90,7 +113,6 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
             {data.totalEnergyCharged || 0}
           </h1>
         </div>
-
         {/* Total Events */}
         <div className="card bg-green-100 p-4 rounded-lg shadow-md">
           <div className="card-inner flex justify-between items-center">
@@ -99,7 +121,6 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
           </div>
           <h1 className="text-2xl font-bold mt-2">{data.totalEvents || 0}</h1>
         </div>
-
         {/* Peak Power Load */}
         <div className="card bg-red-100 p-4 rounded-lg shadow-md">
           <div className="card-inner flex justify-between items-center">
@@ -110,7 +131,6 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
             {data.peakPowerLoad || 0}
           </h1>
         </div>
-
         {/* Average Events Per Day */}
         <div className="card bg-fuchsia-900 p-4 rounded-lg shadow-md">
           <div className="card-inner flex justify-between items-center">
@@ -123,7 +143,7 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
         </div>
       </div>
       {/* Charts Section */}
-      <div>
+      <div className="flex flex-col items-center justify-center">
         {/* Bar Chart Component */}
         <BarChartComponent data={chartData} />
         <HeatmapCalender
