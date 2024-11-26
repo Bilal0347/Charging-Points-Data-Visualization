@@ -69,7 +69,7 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
 
   // This function transforms the data to fit the heatmap's expected structure
   return (
-    <main className="main-container flex flex-col items-center justify-center">
+    <main className="main-container flex flex-col items-center justify-center ">
       {/* Title */}
       <div className="main-title">
         <h3>DASHBOARD</h3>
@@ -143,7 +143,7 @@ function OutputDataVisuals({ data, timeScale, onTimeScaleChange }: any) {
         </div>
       </div>
       {/* Charts Section */}
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center mt-10">
         {/* Bar Chart Component */}
         <BarChartComponent data={chartData} />
         <HeatmapCalender

@@ -84,12 +84,6 @@ const App = () => {
       });
     };
 
-  // Handle time scale change
-  const handleTimeScaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedScale = e.target.value as "day" | "month" | "year";
-    setTimeScale(selectedScale);
-  };
-
   // Handle form submission
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

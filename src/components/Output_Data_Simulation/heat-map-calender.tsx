@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface HeatmapCalenderProps {
   startDate: string;
   endDate: string;
-  dataValues: { date: string; count: number }[];
+  dataValues: { date: string; count: number; totalPower: number }[];
 }
 
 const HeatmapCalender = ({
@@ -11,10 +11,18 @@ const HeatmapCalender = ({
   endDate,
   dataValues,
 }: HeatmapCalenderProps) => {
-  const [tooltip, setTooltip] = useState<string | null>(null); // State to handle tooltip
+  const [tooltip, setTooltip] = useState<{
+    content: string | null;
+    x: number;
+    y: number;
+  }>({ content: null, x: 0, y: 0 }); // State for tooltip
+  const [selectedMetric, setSelectedMetric] = useState<"count" | "totalPower">(
+    "count"
+  ); // State for dropdown selection
 
-  let startingDate = new Date(startDate);
-  let endingDate = new Date(endDate);
+  const startingDate = new Date(startDate);
+  const endingDate = new Date(endDate);
+
   const daysInMonth =
     Math.ceil(
       (endingDate.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -26,67 +34,72 @@ const HeatmapCalender = ({
     return date.toISOString().slice(0, 10);
   });
 
-  // Find the minimum and maximum count values
-  const counts = dataValues.map((item) => item.count);
-  const minCount = Math.min(...counts);
-  const maxCount = Math.max(...counts);
+  const selectedValues = dataValues.map((item) =>
+    selectedMetric === "count" ? item.count : item.totalPower
+  );
 
-  // Normalize the count value
-  const normalizeCount = (count: number): number => {
-    return (count - minCount) / (maxCount - minCount);
+  const minValue = Math.min(...selectedValues);
+  const maxValue = Math.max(...selectedValues);
+
+  const normalizeValue = (value: number): number => {
+    return maxValue === minValue
+      ? 0
+      : (value - minValue) / (maxValue - minValue);
   };
 
-  // Assign color based on normalized count with a difference of 0.2 in intensity
   const getColorFromIntensity = (normalized: number): string => {
     const colorCodes = [
-      "#FFEEEE", // 0.0
-      "#FFDDDD", // 0.1
-      "#FFCCCC", // 0.2
-      "#FFBBBB", // 0.3
-      "#FFAAAA", // 0.4
-      "#FF9999", // 0.5
-      "#FF8888", // 0.6
-      "#FF7777", // 0.7
-      "#FF6666", // 0.8
-      "#FF5555", // 0.9
-      "#FF4444", // 1.0
+      "#FFEEEE",
+      "#FFDDDD",
+      "#FFCCCC",
+      "#FFBBBB",
+      "#FFAAAA",
+      "#FF9999",
+      "#FF8888",
+      "#FF7777",
+      "#FF6666",
+      "#FF5555",
+      "#FF4444",
     ];
 
-    // Calculate the color index based on the normalized value (0.0 to 1.0)
     const colorIndex = Math.min(
-      Math.floor(normalized * 10), // Adjust to get 11 levels (0.0, 0.1, ..., 1.0)
+      Math.floor(normalized * 10),
       colorCodes.length - 1
     );
 
     return colorCodes[colorIndex];
   };
 
-  // Show tooltip on hover or click
-  const handleMouseEnter = (day: string, count: number) => {
-    setTooltip(`Date: ${day} - Total Count: ${count}`);
-  };
-
-  const handleClick = (day: string, count: number) => {
-    setTooltip(`Date: ${day} - Total Count: ${count}`);
+  const handleMouseEvent = (
+    event: React.MouseEvent<HTMLDivElement>,
+    day: string,
+    value: number
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTooltip({
+      content: `Date: ${day} - ${
+        selectedMetric === "count" ? "Total Events: " : "Energy Consumed: "
+      } ${value}`,
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10,
+    });
   };
 
   const handleMouseLeave = () => {
-    setTooltip(null);
+    setTooltip({ content: null, x: 0, y: 0 });
   };
 
-  // Dynamically determine the number of rows based on screen size
   const getGridTemplateRows = () => {
     if (window.innerWidth > 768) {
-      return `repeat(10, minmax(0, 1fr))`; // Desktop: 10 rows
+      return `repeat(10, minmax(0, 1fr))`;
     } else {
-      return `repeat(23, minmax(0, 1fr))`; // Mobile: 25 rows
+      return `repeat(23, minmax(0, 1fr))`;
     }
   };
 
   const [gridTemplateRows, setGridTemplateRows] = useState(getGridTemplateRows);
 
-  // Update grid dynamically when screen resizes
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setGridTemplateRows(getGridTemplateRows());
     };
@@ -96,8 +109,27 @@ const HeatmapCalender = ({
   }, []);
 
   return (
-    <div className="flex flex-col items-center heatmapMain">
-      <p className="text-1xl heatmapTitle">Heatmap of Events Per Day</p>
+    <div className="relative flex flex-col items-center heatmapMain">
+      {/* Dropdown for Metric Selection */}
+      <div className="mb-4 metricSelectionMainDiv">
+        <label className="text-gray-300 text-1xl customLabelClass w-full">
+          Select Metric of Events and Energy:
+        </label>
+        <select
+          className="h-10 px-6 text-1xl text-white bg-black border-white border-2 rounded-lg border-opacity-50 outline-none focus:border-blue-500 transition duration-200 inputTimeSelection"
+          value={selectedMetric}
+          onChange={(e) =>
+            setSelectedMetric(e.target.value as "count" | "totalPower")
+          }
+        >
+          <option value="count">Number of Events</option>
+          <option value="totalPower">Energy Consumption</option>
+        </select>
+      </div>
+
+      <p className="text-1xl heatmapTitle">
+        Heatmap of {selectedMetric === "count" ? "Events" : "Energy"} Per Day
+      </p>
       {/* Legend */}
       <div className="flex justify-center mb-4">
         <span className="flex items-center mr-4">
@@ -119,48 +151,50 @@ const HeatmapCalender = ({
           <span>High Activity</span>
         </span>
       </div>
+      {/* Calendar Grid */}
       <div
         className="grid grid-flow-col gap-1 border rounded p-3 heatMapGrid"
         style={{ gridTemplateRows: gridTemplateRows }}
       >
         {calenderGrid.map((day, index) => {
-          const activityCount =
-            dataValues.find((item) => item.date === day)?.count || 0;
-
-          // Normalize the activity count
-          const normalized = normalizeCount(activityCount);
+          const value =
+            dataValues.find((item) => item.date === day)?.[selectedMetric] || 0;
+          const normalized = normalizeValue(value);
           const color = getColorFromIntensity(normalized);
 
           return (
             <div
               key={index}
-              className="w-4 h-4 rounded cursor-pointer bg-gray-400"
-              title={tooltip ?? ""} // Title shows dynamic tooltip when hovering
+              className="w-4 h-4 rounded cursor-pointer relative"
               style={{
-                backgroundColor: `${
-                  activityCount === 0 ? "#ffffff10" : String(color)
-                }`,
+                backgroundColor: value === 0 ? "#ffffff10" : String(color),
               }}
-              onMouseEnter={() => handleMouseEnter(day, activityCount)} // Mouse enter event
-              onMouseLeave={handleMouseLeave} // Mouse leave event
-              onClick={() => handleClick(day, activityCount)}
+              onMouseEnter={(e) => handleMouseEvent(e, day, value)}
+              onMouseLeave={handleMouseLeave}
+              onClick={(e) => handleMouseEvent(e, day, value)}
             >
-              {/* Optional: Tooltip shown on the screen */}
-              {tooltip && (
+              {tooltip.content ===
+                `Date: ${day} - ${
+                  selectedMetric === "count"
+                    ? "Total Events: "
+                    : "Energy Consumed: "
+                } ${value}` && ( // Show tooltip only for the active block
                 <div
                   style={{
                     position: "absolute",
-                    top: "0",
+                    top: "-30px",
                     left: "50%",
                     transform: "translateX(-50%)",
                     backgroundColor: "#333",
                     color: "#fff",
-                    padding: "5px",
+                    padding: "5px 10px",
                     borderRadius: "4px",
                     fontSize: "12px",
+                    whiteSpace: "nowrap",
+                    zIndex: 10,
                   }}
                 >
-                  {tooltip}
+                  {tooltip.content}
                 </div>
               )}
             </div>

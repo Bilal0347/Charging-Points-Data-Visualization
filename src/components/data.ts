@@ -66,17 +66,19 @@ export const generateDummyData = ({
     const date = new Date();
     date.setFullYear(2024); // Assume starting from 2024
     date.setMonth(0); // Start from January
-    date.setDate(dayIndex + 1); // Set the date to the current day in the year
+    date.setDate(dayIndex + 1);
 
-    const formattedDate = date.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+    const formattedDate = date.toISOString().split("T")[0];
 
     // Check if the date is within the simulation range, and add events from the dailyData
     const simulatedDay = dailyData.find((item) => item.day === dayIndex + 1);
     const events = simulatedDay ? simulatedDay.events : 0;
+    const power = simulatedDay ? simulatedDay.totalPower : 0;
 
     return {
       date: formattedDate, // Date in the required format
       count: events, // Event count for that date
+      totalPower: power,
     };
   });
 
@@ -114,7 +116,6 @@ export const generateDummyData = ({
 
   // Average events per day
   const averageEventsPerDay = Math.floor(totalEvents / daysToSimulate);
-  console.log("heatmap data", heatmapData);
   return {
     hourlyData,
     dailyData,
