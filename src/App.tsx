@@ -119,7 +119,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app min-h-screen flex flex-col justify-center items-center px-4">
-      <h1 className="text-2xl font-bold text-center mb-6">
+      <h1 className="text-2xl font-bold text-center mb-6 mt-5">
         EV Charger Simulation
       </h1>
       <InputForm
