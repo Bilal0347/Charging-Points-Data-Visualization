@@ -10,6 +10,7 @@ interface FormProps {
   ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isFormValid: boolean;
+  successMessage: string; // Change type to accept null when no message is shown
 }
 
 const InputForm: React.FC<FormProps> = ({
@@ -18,11 +19,12 @@ const InputForm: React.FC<FormProps> = ({
   onInputChange,
   onFormSubmit,
   isFormValid,
+  successMessage,
 }) => {
   return (
     <form
       onSubmit={onFormSubmit}
-      className="flex flex-col items-center w-full max-w-md"
+      className="flex flex-col items-center w-full max-w-md relative"
     >
       <Input
         label="Number of Charge Points"
@@ -59,7 +61,12 @@ const InputForm: React.FC<FormProps> = ({
         type="number"
         error={formErrors.chargingPowerPerPointKWError}
       />
-
+      {/* Show success message above the form */}
+      {successMessage && (
+        <div className="block  left-0 bg-green-200 text-green-800 p-4 rounded shadow-lg  opacity-100">
+          {successMessage}
+        </div>
+      )}
       <button
         type="submit"
         className={`mt-4 px-8 py-4 w-[200px] text-xl text-white rounded-lg transition duration-200 ${

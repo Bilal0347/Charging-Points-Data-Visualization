@@ -20,6 +20,18 @@ Follow the steps below to get the project up and running on your local machine.
 First, clone the repository from GitHub:
 
 ```bash
-git clone https://github.com/your-username/my-app.git
+git clone https://github.com/Bilal0347/reonic_task.git
 cd my-app
 ```
+
+### 2. Install dependencies
+
+npm install
+
+### 3. Check Tailwind Css:
+
+Ensure that the Tailwind CSS configuration (if used) is included in the correct files (`tailwind.config.js` and `postcss.config.js`).
+
+### 4. Run the application locally
+
+npm start

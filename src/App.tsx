@@ -26,6 +26,7 @@ const App: React.FC = () => {
 
   const [simulationData, setSimulationData] = useState<SimulationData>();
   const [timeScale, setTimeScale] = useState<TimeScale>("year");
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   // Map time scale to simulation days
   const timeScaleToDays: Record<TimeScale, number> = {
@@ -98,6 +99,8 @@ const App: React.FC = () => {
         daysToSimulate: timeScaleToDays[timeScale], // Adjust simulation days based on selection
       });
       setSimulationData(results); // Update simulation data
+      setSuccessMessage("Simulation successfully generated!");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } else {
       setFormErrors(errors); // Set errors if form is invalid
     }
@@ -113,6 +116,8 @@ const App: React.FC = () => {
       daysToSimulate: timeScaleToDays[newScale], // Update simulation with new time scale
     });
     setSimulationData(updatedData);
+    setSuccessMessage("Simulation successfully generated!");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
   const isFormValid = Object.values(formErrors).every((error) => error === "");
@@ -122,12 +127,14 @@ const App: React.FC = () => {
       <h1 className="text-2xl font-bold text-center mb-6 mt-5">
         EV Charger Simulation
       </h1>
+
       <InputForm
         formData={formData}
         formErrors={formErrors}
         onInputChange={handleInputChange}
         onFormSubmit={handleFormSubmit}
         isFormValid={isFormValid}
+        successMessage={successMessage}
       />
 
       {simulationData && (

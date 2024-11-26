@@ -23,17 +23,24 @@ const HeatmapCalendar = ({
   const startingDate = new Date(startDate);
   const endingDate = new Date(endDate);
 
-  const daysInMonth =
-    Math.ceil(
-      (endingDate.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
-    ) + 1;
+  const calendarGrid = Array.from({ length: 12 }, (_, monthIndex) => {
+    const monthStart = new Date(startingDate.getFullYear(), monthIndex, 1);
+    const monthEnd = new Date(startingDate.getFullYear(), monthIndex + 1, 0);
 
-  const calendarGrid = Array.from({ length: daysInMonth }, (_, i) => {
-    const date = new Date(startingDate);
-    date.setDate(startingDate.getDate() + i);
-    return date.toISOString().slice(0, 10);
+    // Ensure we don't go past the ending date
+    if (monthStart > endingDate) return [];
+
+    // Handle the case where the month partially overlaps with the range
+    const daysInMonth = [];
+    for (
+      let d = new Date(monthStart);
+      d <= monthEnd && d <= endingDate;
+      d.setDate(d.getDate())
+    ) {
+      daysInMonth.push(d.toISOString().slice(0, 10));
+    }
+    return daysInMonth;
   });
-
   const selectedValues = dataValues.map((item) =>
     selectedMetric === "count" ? item.count : item.totalPower
   );
@@ -88,22 +95,9 @@ const HeatmapCalendar = ({
     setTooltip({ content: null, x: 0, y: 0 });
   };
 
-  const getGridTemplateRows = () => {
-    return window.innerWidth > 768
-      ? "repeat(10, minmax(0, 1fr))"
-      : "repeat(23, minmax(0, 1fr))";
-  };
-
-  const [gridTemplateRows, setGridTemplateRows] = useState(getGridTemplateRows);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setGridTemplateRows(getGridTemplateRows());
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const monthLabels = Array.from({ length: 12 }, (_, i) =>
+    new Date(0, i).toLocaleString("default", { month: "short" })
+  );
 
   return (
     <div className="relative flex flex-col items-center heat-map-main">
@@ -145,54 +139,66 @@ const HeatmapCalendar = ({
           <span>High Activity</span>
         </span>
       </div>
-      <div
-        className="grid grid-flow-col gap-1 border rounded p-3 heat-map-grid"
-        style={{ gridTemplateRows }}
-      >
-        {calendarGrid.map((day, index) => {
-          const value =
-            dataValues.find((item) => item.date === day)?.[selectedMetric] || 0;
-          const normalized = normalizeValue(value);
-          const color = getColorFromIntensity(normalized);
 
-          return (
-            <div
-              key={index}
-              className="w-4 h-4 rounded cursor-pointer relative"
-              style={{
-                backgroundColor: value === 0 ? "#ffffff10" : String(color),
-              }}
-              onMouseEnter={(e) => handleMouseEvent(e, day, value)}
-              onMouseLeave={handleMouseLeave}
-              onClick={(e) => handleMouseEvent(e, day, value)}
-            >
-              {tooltip.content ===
-                `Date: ${day} - ${
-                  selectedMetric === "count"
-                    ? "Total Events: "
-                    : "Energy Consumed: "
-                } ${value}` && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "-30px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "#333",
-                    color: "#fff",
-                    padding: "5px 10px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    whiteSpace: "nowrap",
-                    zIndex: 10,
-                  }}
-                >
-                  {tooltip.content}
-                </div>
-              )}
+      <div
+        className="grid gap-3 border rounded p-3 heat-map-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(12, 1fr)`, // 12 columns for months
+        }}
+      >
+        {calendarGrid.map((daysInMonth, monthIndex) => (
+          <div key={monthIndex} className="heat-map-column">
+            <div className="text-center font-bold mb-2">
+              {monthLabels[monthIndex]}
             </div>
-          );
-        })}
+            {daysInMonth.map((day, index) => {
+              const value =
+                dataValues.find((item) => item.date === day)?.[
+                  selectedMetric
+                ] || 0;
+              const normalized = normalizeValue(value);
+              const color = getColorFromIntensity(normalized);
+
+              return (
+                <div
+                  key={index}
+                  className="w-8 h-8 rounded cursor-pointer relative mb-1"
+                  style={{
+                    backgroundColor: value === 0 ? "#ffffff10" : color,
+                  }}
+                  onMouseEnter={(e) => handleMouseEvent(e, day, value)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  {tooltip.content ===
+                    `Date: ${day} - ${
+                      selectedMetric === "count"
+                        ? "Total Events: "
+                        : "Energy Consumed: "
+                    } ${value}` && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "-30px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        backgroundColor: "#333",
+                        color: "#fff",
+                        padding: "5px 10px",
+                        borderRadius: "4px",
+                        fontSize: "12px",
+                        whiteSpace: "nowrap",
+                        zIndex: 10,
+                      }}
+                    >
+                      {tooltip.content}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
