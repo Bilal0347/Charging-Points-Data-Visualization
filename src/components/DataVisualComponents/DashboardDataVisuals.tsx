@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   BsFillGrid3X3GapFill,
   BsSpeedometer,
@@ -7,18 +7,50 @@ import {
 } from "react-icons/bs";
 import BarChartComponent from "./BarChart";
 import HeatmapCalendar from "./HeatMapCalender";
-import { TimeScale, DashboardDataVisualsProps } from "../types";
+import { TimeScale, SimulationData, FormData } from "../types";
+import { generateDummyData } from "../data"; // Import dummy data generator
 import "./output-style.css";
 
-// Define type for simulation data
-
-// Define props for the DashboardDataVisuals component
-
-const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
-  simulationData,
+const DashboardDataVisuals: React.FC<{
+  simulationData: SimulationData;
+  formData: FormData;
+  setTimeScale: (newScale: TimeScale) => void;
+  timeScale: TimeScale;
+}> = ({
+  simulationData: initialSimulationData,
+  formData,
+  setTimeScale,
   timeScale,
-  onTimeScaleChange,
 }) => {
+  const [simulationData, setSimulationData] = useState<SimulationData>(
+    initialSimulationData
+  );
+
+  useEffect(() => {
+    setSimulationData(initialSimulationData);
+  }, [initialSimulationData]);
+
+  // Map time scale to simulation days
+  const timeScaleToDays: Record<TimeScale, number> = {
+    day: 1,
+    month: 30,
+    year: 365,
+  };
+
+  // Handle time scale change
+  const handleTimeScaleChange = (newScale: TimeScale) => {
+    setTimeScale(newScale);
+    // Generate updated data based on the new time scale
+    const updatedData = generateDummyData({
+      numberOfChargePoints: formData.numberOfChargePoints,
+      arrivalProbabilityMultiplier: formData.arrivalProbabilityMultiplier,
+      chargingPowerPerPointKW: formData.chargingPowerPerPointKW,
+      daysToSimulate: timeScaleToDays[newScale],
+    });
+
+    setSimulationData(updatedData); // Update the simulation data
+  };
+
   // Generate chart data based on the selected time scale
   const chartData = useMemo(() => {
     const formatHour = (hour: number) =>
@@ -37,35 +69,25 @@ const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
         new Date(2024, 0, day)
       );
 
-    let lastLabel: string | null = null;
-
-    const getUniqueLabel = (label: string) => {
-      if (label !== lastLabel) {
-        lastLabel = label;
-        return label;
-      }
-      return "";
-    };
-
     switch (timeScale) {
       case "day":
         return simulationData.hourlyData.map(
           ({ hour, events, totalPower }) => ({
-            name: getUniqueLabel(formatHour(hour)),
+            name: formatHour(hour),
             Events: events,
             Energy: totalPower,
           })
         );
       case "month":
         return simulationData.dailyData.map(({ day, events, totalPower }) => ({
-          name: getUniqueLabel(formatDay(day)),
+          name: formatDay(day),
           Events: events,
           Energy: totalPower,
         }));
       case "year":
         return simulationData.monthlyData.map(
           ({ month, events, totalPower }) => ({
-            name: getUniqueLabel(formatMonth(month)),
+            name: formatMonth(month),
             Events: events,
             Energy: totalPower,
           })
@@ -83,7 +105,6 @@ const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
       </div>
 
       {/* Time Scale Selection */}
-
       <div className="mb-4 time-selection">
         <label className="text-gray-300 text-xl custom-label-class w-full">
           Select Time Scale:
@@ -91,7 +112,7 @@ const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
         <select
           className="h-10 px-6 text-xl text-white bg-black border-white border-2 rounded-lg border-opacity-50 outline-none focus:border-blue-500 transition duration-200 input-time-selection"
           value={timeScale}
-          onChange={(e) => onTimeScaleChange(e.target.value as TimeScale)}
+          onChange={(e) => handleTimeScaleChange(e.target.value as TimeScale)}
         >
           <option value="day">Day</option>
           <option value="month">Month</option>
@@ -154,5 +175,4 @@ const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
     </main>
   );
 };
-
 export default DashboardDataVisuals;

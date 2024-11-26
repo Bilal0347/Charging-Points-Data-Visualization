@@ -58,3 +58,18 @@ export interface DashboardDataVisualsProps {
   timeScale: TimeScale;
   onTimeScaleChange: (newScale: TimeScale) => void;
 }
+
+export interface FormProps {
+  formData: FormData;
+  onSubmit: (updatedData: FormData) => void; // Pass validated form data on submit
+  successMessage: string;
+}
+
+export interface InputProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  type?: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+}
