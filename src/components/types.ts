@@ -52,3 +52,9 @@ export interface HeatmapCalendarProps {
 export interface BarChartProps {
   data: Array<{ name: string; Events: number; Energy: number }>;
 }
+
+export interface DashboardDataVisualsProps {
+  simulationData: SimulationData;
+  timeScale: TimeScale;
+  onTimeScaleChange: (newScale: TimeScale) => void;
+}

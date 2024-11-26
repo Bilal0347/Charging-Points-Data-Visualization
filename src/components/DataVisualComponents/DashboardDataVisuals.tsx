@@ -7,17 +7,12 @@ import {
 } from "react-icons/bs";
 import BarChartComponent from "./BarChart";
 import HeatmapCalendar from "./HeatMapCalender";
-import { TimeScale, SimulationData } from "../types";
+import { TimeScale, DashboardDataVisualsProps } from "../types";
 import "./output-style.css";
 
 // Define type for simulation data
 
 // Define props for the DashboardDataVisuals component
-interface DashboardDataVisualsProps {
-  simulationData: SimulationData;
-  timeScale: TimeScale;
-  onTimeScaleChange: (newScale: TimeScale) => void;
-}
 
 const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
   simulationData,
@@ -152,7 +147,7 @@ const DashboardDataVisuals: React.FC<DashboardDataVisualsProps> = ({
         <BarChartComponent data={chartData} />
         <HeatmapCalendar
           startDate={"2024-01-01"}
-          endDate={"2024-12-30"}
+          endDate={"2024-12-31"}
           dataValues={simulationData.heatmapData}
         />
       </div>

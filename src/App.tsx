@@ -123,7 +123,7 @@ const App: React.FC = () => {
   const isFormValid = Object.values(formErrors).every((error) => error === "");
 
   return (
-    <div className="app min-h-screen flex flex-col justify-center items-center px-4">
+    <div className="custom-app min-h-screen flex flex-col justify-center items-center px-4">
       <h1 className="text-2xl font-bold text-center mb-6 mt-5">
         EV Charger Simulation
       </h1>

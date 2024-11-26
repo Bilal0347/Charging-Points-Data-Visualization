@@ -14,6 +14,10 @@ body {
   color: rgba(255, 255, 255, 0.95);
 }
 
+.custom-app-style {
+  overflow-x: hidden;
+}
+
 .main-title {
   display: flex;
   justify-content: space-between;
@@ -84,8 +88,6 @@ body {
   width: 278px;
 }
 
-
-
 @media screen and (max-width: 768px) {
   .main-cards {
     grid-template-columns: 1fr;
@@ -98,7 +100,6 @@ body {
     margin-top: 30px;
   }
 }
-
 
 .heat-map-main {
   max-width: 800px;
@@ -128,11 +129,10 @@ body {
     width: 150% !important;
   }
   .heat-map-grid {
-    max-width: 400px;
+    max-width: 340px;
     overflow-x: auto;
   }
 }
-
 
 .custom-bar-chart-svg {
   margin-top: 50px;

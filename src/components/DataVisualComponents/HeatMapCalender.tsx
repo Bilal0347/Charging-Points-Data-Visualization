@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { HeatmapCalendarProps } from "../types";
 
 const HeatmapCalendar = ({
@@ -30,17 +30,17 @@ const HeatmapCalendar = ({
     // Ensure we don't go past the ending date
     if (monthStart > endingDate) return [];
 
-    // Handle the case where the month partially overlaps with the range
     const daysInMonth = [];
     for (
       let d = new Date(monthStart);
       d <= monthEnd && d <= endingDate;
-      d.setDate(d.getDate())
+      d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
     ) {
       daysInMonth.push(d.toISOString().slice(0, 10));
     }
     return daysInMonth;
   });
+
   const selectedValues = dataValues.map((item) =>
     selectedMetric === "count" ? item.count : item.totalPower
   );
@@ -152,51 +152,57 @@ const HeatmapCalendar = ({
             <div className="text-center font-bold mb-2">
               {monthLabels[monthIndex]}
             </div>
-            {daysInMonth.map((day, index) => {
-              const value =
-                dataValues.find((item) => item.date === day)?.[
-                  selectedMetric
-                ] || 0;
-              const normalized = normalizeValue(value);
-              const color = getColorFromIntensity(normalized);
+            {daysInMonth
+              .filter((day) => {
+                // Ensure the day belongs to the correct month
+                const dateObj = new Date(day);
+                return dateObj.getMonth() === monthIndex;
+              })
+              .map((day, index) => {
+                const value =
+                  dataValues.find((item) => item.date === day)?.[
+                    selectedMetric
+                  ] || 0;
+                const normalized = normalizeValue(value);
+                const color = getColorFromIntensity(normalized);
 
-              return (
-                <div
-                  key={index}
-                  className="w-8 h-8 rounded cursor-pointer relative mb-1"
-                  style={{
-                    backgroundColor: value === 0 ? "#ffffff10" : color,
-                  }}
-                  onMouseEnter={(e) => handleMouseEvent(e, day, value)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  {tooltip.content ===
-                    `Date: ${day} - ${
-                      selectedMetric === "count"
-                        ? "Total Events: "
-                        : "Energy Consumed: "
-                    } ${value}` && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "-30px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        backgroundColor: "#333",
-                        color: "#fff",
-                        padding: "5px 10px",
-                        borderRadius: "4px",
-                        fontSize: "12px",
-                        whiteSpace: "nowrap",
-                        zIndex: 10,
-                      }}
-                    >
-                      {tooltip.content}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={index}
+                    className="w-8 h-8 rounded cursor-pointer relative mb-1"
+                    style={{
+                      backgroundColor: value === 0 ? "#ffffff10" : color,
+                    }}
+                    onMouseEnter={(e) => handleMouseEvent(e, day, value)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    {tooltip.content ===
+                      `Date: ${day} - ${
+                        selectedMetric === "count"
+                          ? "Total Events: "
+                          : "Energy Consumed: "
+                      } ${value}` && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "-30px",
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          backgroundColor: "#333",
+                          color: "#fff",
+                          padding: "5px 10px",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          whiteSpace: "nowrap",
+                          zIndex: 10,
+                        }}
+                      >
+                        {tooltip.content}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
           </div>
         ))}
       </div>
