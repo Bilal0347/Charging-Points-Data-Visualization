@@ -1,5 +1,5 @@
 import React from "react";
-import "./input.css";
+import "./input-style.css";
 
 interface InputProps {
   label: string;
@@ -20,7 +20,7 @@ const Input = ({
 }: InputProps) => {
   return (
     <div className="relative flex flex-col items-center justify-center block mb-6 w-full max-w-[500px] px-4">
-      <label className="text-gray-300 text-1xl top-10 flex flex-row self-start customLabelClass w-full">
+      <label className="text-gray-300 text-1xl top-10 flex flex-row self-start custom-label-class w-full">
         {label}
       </label>
       <input

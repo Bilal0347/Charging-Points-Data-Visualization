@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from "react";
+import { HeatmapCalendarProps } from "../types";
 
-interface HeatmapCalenderProps {
-  startDate: string;
-  endDate: string;
-  dataValues: { date: string; count: number; totalPower: number }[];
-}
-
-const HeatmapCalender = ({
+const HeatmapCalendar = ({
   startDate,
   endDate,
   dataValues,
-}: HeatmapCalenderProps) => {
+}: HeatmapCalendarProps) => {
   const [tooltip, setTooltip] = useState<{
     content: string | null;
     x: number;
     y: number;
-  }>({ content: null, x: 0, y: 0 }); // State for tooltip
+  }>({
+    content: null,
+    x: 0,
+    y: 0,
+  });
+
   const [selectedMetric, setSelectedMetric] = useState<"count" | "totalPower">(
     "count"
-  ); // State for dropdown selection
+  );
 
   const startingDate = new Date(startDate);
   const endingDate = new Date(endDate);
@@ -28,7 +28,7 @@ const HeatmapCalender = ({
       (endingDate.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
     ) + 1;
 
-  const calenderGrid = Array.from({ length: daysInMonth }, (_, i) => {
+  const calendarGrid = Array.from({ length: daysInMonth }, (_, i) => {
     const date = new Date(startingDate);
     date.setDate(startingDate.getDate() + i);
     return date.toISOString().slice(0, 10);
@@ -66,7 +66,6 @@ const HeatmapCalender = ({
       Math.floor(normalized * 10),
       colorCodes.length - 1
     );
-
     return colorCodes[colorIndex];
   };
 
@@ -90,11 +89,9 @@ const HeatmapCalender = ({
   };
 
   const getGridTemplateRows = () => {
-    if (window.innerWidth > 768) {
-      return `repeat(10, minmax(0, 1fr))`;
-    } else {
-      return `repeat(23, minmax(0, 1fr))`;
-    }
+    return window.innerWidth > 768
+      ? "repeat(10, minmax(0, 1fr))"
+      : "repeat(23, minmax(0, 1fr))";
   };
 
   const [gridTemplateRows, setGridTemplateRows] = useState(getGridTemplateRows);
@@ -109,14 +106,13 @@ const HeatmapCalender = ({
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center heatmapMain">
-      {/* Dropdown for Metric Selection */}
-      <div className="mb-4 metricSelectionMainDiv">
-        <label className="text-gray-300 text-1xl customLabelClass w-full">
+    <div className="relative flex flex-col items-center heat-map-main">
+      <div className="mb-4 metric-selection-main-div">
+        <label className="text-gray-300 text-xl custom-label-class w-full">
           Select Metric of Events and Energy:
         </label>
         <select
-          className="h-10 px-6 text-1xl text-white bg-black border-white border-2 rounded-lg border-opacity-50 outline-none focus:border-blue-500 transition duration-200 inputTimeSelection"
+          className="h-10 px-6 text-xl text-white bg-black border-white border-2 rounded-lg border-opacity-50 outline-none focus:border-blue-500 transition duration-200 input-time-selection"
           value={selectedMetric}
           onChange={(e) =>
             setSelectedMetric(e.target.value as "count" | "totalPower")
@@ -126,11 +122,9 @@ const HeatmapCalender = ({
           <option value="totalPower">Energy Consumption</option>
         </select>
       </div>
-
-      <p className="text-1xl heatmapTitle">
+      <p className="text-xl heat-map-title">
         Heatmap of {selectedMetric === "count" ? "Events" : "Energy"} Per Day
       </p>
-      {/* Legend */}
       <div className="flex justify-center mb-4">
         <span className="flex items-center mr-4">
           <div className="w-4 h-4 bg-gray-100 border border-gray-300 mr-2"></div>
@@ -151,12 +145,11 @@ const HeatmapCalender = ({
           <span>High Activity</span>
         </span>
       </div>
-      {/* Calendar Grid */}
       <div
-        className="grid grid-flow-col gap-1 border rounded p-3 heatMapGrid"
-        style={{ gridTemplateRows: gridTemplateRows }}
+        className="grid grid-flow-col gap-1 border rounded p-3 heat-map-grid"
+        style={{ gridTemplateRows }}
       >
-        {calenderGrid.map((day, index) => {
+        {calendarGrid.map((day, index) => {
           const value =
             dataValues.find((item) => item.date === day)?.[selectedMetric] || 0;
           const normalized = normalizeValue(value);
@@ -178,7 +171,7 @@ const HeatmapCalender = ({
                   selectedMetric === "count"
                     ? "Total Events: "
                     : "Energy Consumed: "
-                } ${value}` && ( // Show tooltip only for the active block
+                } ${value}` && (
                 <div
                   style={{
                     position: "absolute",
@@ -205,4 +198,4 @@ const HeatmapCalender = ({
   );
 };
 
-export default HeatmapCalender;
+export default HeatmapCalendar;

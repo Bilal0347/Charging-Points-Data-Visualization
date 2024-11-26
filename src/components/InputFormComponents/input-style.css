@@ -7,13 +7,3 @@ input[type="text"]:not(:placeholder-shown) ~ .input-text {
   @apply text-blue-500 transform -translate-y-10 -translate-x-2 scale-75;
 }
 
-.InputForm {
-  display: flex;
-  flex-direction: column;
-  margin-top: 25px;
-  overflow-x: hidden;
-}
-
-.customTitle {
-  color: white;
-}

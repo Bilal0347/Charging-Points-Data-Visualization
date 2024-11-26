@@ -1,8 +1,5 @@
-import React, { useState } from "react";
-
-interface BarChartProps {
-  data: Array<{ name: string; Events: number; Energy: number }>;
-}
+import React, { useState, useEffect } from "react";
+import { BarChartProps } from "../types";
 
 const BarChart: React.FC<BarChartProps> = ({ data }) => {
   // Responsive chart dimensions
@@ -13,14 +10,16 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
     content: string;
   } | null>(null);
 
-  React.useEffect(() => {
+  // Handle window resize to adjust chart dimensions
+  useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const width = Math.min(800, windowWidth - 20); // Max width 800px, margin for padding
-  const height = Math.min(400, windowWidth * 0.5); // Maintain aspect ratio
+  // Chart dimensions
+  const width = Math.min(800, windowWidth - 20);
+  const height = Math.min(400, windowWidth * 0.5);
   const padding = 50;
   const chartWidth = width - 2 * padding;
   const chartHeight = height - 2 * padding;
@@ -30,7 +29,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
   const maxEnergy = Math.max(...data.map((item) => item.Energy));
   const maxValue = Math.max(maxEvents, maxEnergy);
 
-  // Scale helper
+  // Scale function
   const scaleValue = (value: number) => (value / maxValue) * chartHeight;
 
   // Bar dimensions
@@ -47,7 +46,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <p className="text-1xl ">BarChart Shows Events and Energy KWh</p>
+      <p className="text-xl">Bar Chart: Events and Energy (KWh)</p>
       <div
         style={{
           position: "relative",
@@ -78,7 +77,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
         <svg
           width={width - 20}
           height={height}
-          className="border rounded pl-2 customBarChartSvg"
+          className="border rounded pl-2 custom-bar-chart-svg"
         >
           {/* Axes */}
           <line
@@ -100,7 +99,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
           {data.map((item, index) => {
             const x = padding + index * barSpacing + barWidth;
 
-            // Determine if this label should be displayed
+            // Show labels based on width
             const shouldShowLabel =
               windowWidth > 600 || index % Math.ceil(data.length / 12) === 0;
 
@@ -111,7 +110,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
                   x={x}
                   y={height - padding + 20}
                   textAnchor="middle"
-                  fontSize={Math.max(10, width * 0.015)} // Adjust font size dynamically
+                  fontSize={Math.max(10, width * 0.015)} // Dynamically adjust font size
                   fill="white"
                 >
                   {item.name}
@@ -119,6 +118,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
               )
             );
           })}
+
           {/* Bars */}
           {data.map((item, index) => {
             const xStart = padding + index * barSpacing;

@@ -1,76 +1,63 @@
 import React from "react";
-import Input from "./input";
-
-interface FormData {
-  numberOfChargePoints: number;
-  arrivalProbabilityMultiplier: number;
-  carConsumption_kWh: number;
-  chargingPowerPerPoint_kW: number;
-}
-
-interface Errors {
-  numberOfChargePoints: string;
-  arrivalProbabilityMultiplier: string;
-  carConsumption_kWh: string;
-  chargingPowerPerPoint_kW: string;
-}
+import Input from "./InputField";
+import { FormData, ErrorData } from "../../components/types";
 
 interface FormProps {
   formData: FormData;
-  errors: Errors;
-  handleChange: (
+  formErrors: ErrorData;
+  onInputChange: (
     field: keyof FormData
   ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isFormValid: boolean;
 }
 
-const Form: React.FC<FormProps> = ({
+const InputForm: React.FC<FormProps> = ({
   formData,
-  errors,
-  handleChange,
-  handleSubmit,
+  formErrors,
+  onInputChange,
+  onFormSubmit,
   isFormValid,
 }) => {
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={onFormSubmit}
       className="flex flex-col items-center w-full max-w-md"
     >
       <Input
         label="Number of Charge Points"
         placeholder="Enter number of charge points"
         value={formData.numberOfChargePoints.toString()}
-        onChange={handleChange("numberOfChargePoints")}
+        onChange={onInputChange("numberOfChargePoints")}
         type="number"
-        error={errors.numberOfChargePoints}
+        error={formErrors.numberOfChargePointsError}
       />
 
       <Input
         label="Arrival Probability Multiplier (20% to 200%)"
         placeholder="Enter arrival probability multiplier"
         value={formData.arrivalProbabilityMultiplier.toString()}
-        onChange={handleChange("arrivalProbabilityMultiplier")}
+        onChange={onInputChange("arrivalProbabilityMultiplier")}
         type="number"
-        error={errors.arrivalProbabilityMultiplier}
+        error={formErrors.arrivalProbabilityMultiplierError}
       />
 
       <Input
         label="Car Consumption (kWh)"
         placeholder="Enter car consumption"
-        value={formData.carConsumption_kWh.toString()}
-        onChange={handleChange("carConsumption_kWh")}
+        value={formData.carConsumptionKWh.toString()}
+        onChange={onInputChange("carConsumptionKWh")}
         type="number"
-        error={errors.carConsumption_kWh}
+        error={formErrors.carConsumptionKWhError}
       />
 
       <Input
         label="Charging Power Per Point (kW)"
         placeholder="Enter charging power per point"
-        value={formData.chargingPowerPerPoint_kW.toString()}
-        onChange={handleChange("chargingPowerPerPoint_kW")}
+        value={formData.chargingPowerPerPointKW.toString()}
+        onChange={onInputChange("chargingPowerPerPointKW")}
         type="number"
-        error={errors.chargingPowerPerPoint_kW}
+        error={formErrors.chargingPowerPerPointKWError}
       />
 
       <button
@@ -88,4 +75,4 @@ const Form: React.FC<FormProps> = ({
   );
 };
 
-export default Form;
+export default InputForm;

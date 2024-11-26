@@ -1,12 +1,12 @@
 export const generateDummyData = ({
   numberOfChargePoints,
   arrivalProbabilityMultiplier,
-  chargingPowerPerPoint_kW,
+  chargingPowerPerPointKW,
   daysToSimulate,
 }: {
   numberOfChargePoints: number;
   arrivalProbabilityMultiplier: number; // As percentage
-  chargingPowerPerPoint_kW: number;
+  chargingPowerPerPointKW: number;
   daysToSimulate: number;
 }) => {
   const hoursPerDay = 24;
@@ -18,7 +18,7 @@ export const generateDummyData = ({
     const chargepoints = Array.from({ length: numberOfChargePoints }, () => {
       const isCharging = Math.random() < arrivalProbabilityMultiplier / 100; // Arrival probability
       return isCharging
-        ? Math.floor(Math.random() * chargingPowerPerPoint_kW) // Random power as int (0 to max)
+        ? Math.floor(Math.random() * chargingPowerPerPointKW) // Random power as int (0 to max)
         : 0;
     });
     const totalPower = chargepoints.reduce((sum, power) => sum + power, 0);

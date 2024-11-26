@@ -1,38 +1,40 @@
 import React, { useState } from "react";
-import Form from "./components/Input_Form/input-form";
+import InputForm from "./components/InputFormComponents/InputForm";
 import { generateDummyData } from "./components/data";
-import OutputDataVisuals from "./components/Output_Data_Simulation/output-data-visuals";
+import DashboardDataVisuals from "./components/DataVisualComponents/DashboardDataVisuals";
+import {
+  ErrorData,
+  FormData,
+  TimeScale,
+  SimulationData,
+} from "./components/types";
 
-const App = () => {
-  const [formData, setFormData] = useState({
+const App: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
     numberOfChargePoints: 20,
-    arrivalProbabilityMultiplier: 100, // Stored as percentage
-    carConsumption_kWh: 18,
-    chargingPowerPerPoint_kW: 11,
+    arrivalProbabilityMultiplier: 100,
+    carConsumptionKWh: 18,
+    chargingPowerPerPointKW: 11,
   });
 
-  const [errors, setErrors] = useState({
-    numberOfChargePoints: "",
-    arrivalProbabilityMultiplier: "",
-    carConsumption_kWh: "",
-    chargingPowerPerPoint_kW: "",
+  const [formErrors, setFormErrors] = useState<ErrorData>({
+    numberOfChargePointsError: "",
+    arrivalProbabilityMultiplierError: "",
+    carConsumptionKWhError: "",
+    chargingPowerPerPointKWError: "",
   });
 
-  const [simulationData, setSimulationData] = useState<any>(null); // Store the generated data
-  const [timeScale, setTimeScale] = useState<"day" | "month" | "year">("year");
+  const [simulationData, setSimulationData] = useState<SimulationData>();
+  const [timeScale, setTimeScale] = useState<TimeScale>("year");
 
   // Map time scale to simulation days
-  const timeScaleToDays = {
+  const timeScaleToDays: Record<TimeScale, number> = {
     day: 1,
     month: 30,
     year: 365,
   };
-
   // Validate individual field
-  const validateField = (
-    field: keyof typeof formData,
-    value: number
-  ): string => {
+  const validateField = (field: keyof FormData, value: number): string => {
     switch (field) {
       case "numberOfChargePoints":
         return value <= 0 || value > 100
@@ -42,9 +44,9 @@ const App = () => {
         return value < 20 || value > 200
           ? "Arrival probability multiplier must be between 20% and 200%."
           : "";
-      case "carConsumption_kWh":
+      case "carConsumptionKWh":
         return value <= 0 ? "Car consumption must be greater than 0." : "";
-      case "chargingPowerPerPoint_kW":
+      case "chargingPowerPerPointKW":
         return value <= 0
           ? "Charging power per point must be greater than 0."
           : "";
@@ -54,89 +56,85 @@ const App = () => {
   };
 
   // Validate entire form
-  const validateForm = (data: typeof formData) => {
-    const newErrors = {
-      numberOfChargePoints: "",
-      arrivalProbabilityMultiplier: "",
-      carConsumption_kWh: "",
-      chargingPowerPerPoint_kW: "",
+  const validateForm = (data: FormData): ErrorData => {
+    const newErrors: ErrorData = {
+      numberOfChargePointsError: "",
+      arrivalProbabilityMultiplierError: "",
+      carConsumptionKWhError: "",
+      chargingPowerPerPointKWError: "",
     };
 
-    Object.keys(data).forEach((field) => {
-      const fieldName = field as keyof typeof formData;
-      const value = data[fieldName];
-      const error = validateField(fieldName, value);
-      if (error) newErrors[fieldName] = error;
+    Object.keys(data).forEach((key) => {
+      const field = key as keyof FormData;
+      const error = validateField(field, data[field]);
+      if (error) {
+        newErrors[`${field}Error` as keyof ErrorData] = error;
+      }
     });
 
     return newErrors;
   };
 
   // Handle change for form input fields
-  const handleChange =
-    (field: keyof typeof formData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = parseFloat(e.target.value) || 0;
       setFormData((prevData) => {
         const updatedData = { ...prevData, [field]: value };
-        setErrors(validateForm(updatedData)); // Validate after each change
+        setFormErrors(validateForm(updatedData)); // Validate after each change
         return updatedData;
       });
     };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formErrors = validateForm(formData); // Validate on submit
-    if (Object.values(formErrors).every((error) => error === "")) {
-      const simulationResults = generateDummyData({
+    const errors = validateForm(formData); // Validate on submit
+    if (Object.values(errors).every((error) => error === "")) {
+      const results = generateDummyData({
         numberOfChargePoints: formData.numberOfChargePoints,
         arrivalProbabilityMultiplier: formData.arrivalProbabilityMultiplier,
-        chargingPowerPerPoint_kW: formData.chargingPowerPerPoint_kW,
+        chargingPowerPerPointKW: formData.chargingPowerPerPointKW,
         daysToSimulate: timeScaleToDays[timeScale], // Adjust simulation days based on selection
       });
-      setSimulationData(simulationResults); // Update simulation data
+      setSimulationData(results); // Update simulation data
     } else {
-      setErrors(formErrors); // Set errors if form is invalid
+      setFormErrors(errors); // Set errors if form is invalid
     }
   };
 
-  // Handle time scale change after data submission
-  const handleTimeScaleChangeInOutput = (
-    newTimeScale: "day" | "month" | "year"
-  ) => {
-    setTimeScale(newTimeScale);
+  // Handle time scale change for the output
+  const handleTimeScaleChange = (newScale: TimeScale) => {
+    setTimeScale(newScale);
     const updatedData = generateDummyData({
       numberOfChargePoints: formData.numberOfChargePoints,
       arrivalProbabilityMultiplier: formData.arrivalProbabilityMultiplier,
-      chargingPowerPerPoint_kW: formData.chargingPowerPerPoint_kW,
-      daysToSimulate: timeScaleToDays[newTimeScale], // Update simulation with new time scale
+      chargingPowerPerPointKW: formData.chargingPowerPerPointKW,
+      daysToSimulate: timeScaleToDays[newScale], // Update simulation with new time scale
     });
     setSimulationData(updatedData);
   };
 
-  // Whether the form is valid for submission
-  const isFormValid = Object.values(errors).every((error) => error === "");
+  const isFormValid = Object.values(formErrors).every((error) => error === "");
 
   return (
-    <div className="App min-h-screen flex flex-col justify-center items-center InputForm px-4">
-      <h1 className="text-2xl font-bold text-center mb-6 customTitle">
+    <div className="app min-h-screen flex flex-col justify-center items-center px-4">
+      <h1 className="text-2xl font-bold text-center mb-6">
         EV Charger Simulation
       </h1>
-      <Form
+      <InputForm
         formData={formData}
-        errors={errors}
-        handleChange={handleChange}
-        handleSubmit={handleSubmit}
+        formErrors={formErrors}
+        onInputChange={handleInputChange}
+        onFormSubmit={handleFormSubmit}
         isFormValid={isFormValid}
       />
 
-      {/* Conditionally render OutputDataVisuals if simulation data exists */}
       {simulationData && (
-        <OutputDataVisuals
-          data={simulationData}
+        <DashboardDataVisuals
+          simulationData={simulationData}
           timeScale={timeScale}
-          onTimeScaleChange={handleTimeScaleChangeInOutput}
+          onTimeScaleChange={handleTimeScaleChange}
         />
       )}
     </div>
