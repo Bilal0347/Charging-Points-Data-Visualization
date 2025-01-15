@@ -1,4 +1,10 @@
-# reonic_task
+# Charging Station data visualization
+
+
+The user can enter input for data calculation and visuals, such as the number of charging points, car consumption, and charging power per point in kW.
+
+The DashboardDataVisuals component provides an interactive dashboard that displays visualizations of simulation data, such as energy usage, events, and power loads. It consists of various sections and handles user interaction for selecting time scales (Day, Month, Year).
+
 
 # My App
 
